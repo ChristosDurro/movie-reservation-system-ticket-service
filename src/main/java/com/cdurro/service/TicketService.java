@@ -3,6 +3,7 @@ package com.cdurro.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -73,16 +74,10 @@ public class TicketService {
 	
 	public ResponseEntity<List<Ticket>> createTickets(List<Ticket> tickets) {
 		
-		System.out.println("Successfully called createTickets");
-		
-		System.out.println(tickets);
-		
 		List<Long> userIds = tickets.stream().map(Ticket::getUserId).toList();
 		List<Long> movieIds = tickets.stream().map(Ticket::getMovieId).toList();
 		List<Long> scheduleIds = tickets.stream().map(Ticket::getScheduleId).toList();
 		List<Long> seatIds = tickets.stream().map(Ticket::getSeatId).toList();
-		
-		System.out.println("Reached 1 tickets");
 		
 		List<Ticket> existingTickets = repo.findAllByUserIdInAndMovieIdInAndScheduleIdInAndSeatIdIn(
 				userIds,
@@ -91,15 +86,12 @@ public class TicketService {
 				seatIds
 		);
 
-		System.out.println("Reached 2 tickets");
 		if (!existingTickets.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
 		}
 
-		System.out.println("Reached 3 tickets");
 		List<Ticket> ticketsSaved = repo.saveAll(tickets);
 
-		System.out.println("Reached 4 tickets");
 		return ResponseEntity.status(HttpStatus.CREATED).body(ticketsSaved);
 	}
 
@@ -139,6 +131,10 @@ public class TicketService {
 						.setSuccessUrl("http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}&scheduleId=" + request.getScheduleId() + "&seatsSelected=" + request.getSelectedSeatsIds())
 						.setCancelUrl("http://localhost:5173/cancel")
 						.addLineItem(lineItem)
+						.putMetadata("userId", request.getUserId().toString())
+			            .putMetadata("movieId", request.getMovieId().toString())
+			            .putMetadata("scheduleId", request.getScheduleId().toString())
+			            .putMetadata("seatsSelected", request.getSelectedSeatsIds().stream().map(String::valueOf).collect(Collectors.joining(",")))
 						.build();
 			
 			Session session = Session.create(params);

@@ -11,7 +11,6 @@ import com.cdurro.dto.CheckoutDTO;
 import com.cdurro.model.Ticket;
 import com.cdurro.service.TicketService;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@CrossOrigin(origins = { "http://localhost:5173" })
 public class TicketController {
 	
 	@Autowired
@@ -68,7 +66,7 @@ public class TicketController {
 		return ticketService.createTickets(tickets);
 	}
 	
-	@PostMapping("/create-checkout-session")
+	@PostMapping("/tickets/create-checkout-session")
 	public ResponseEntity<Map<String, String>> checkoutSession(@RequestBody CheckoutDTO request) {
 		
 		return ticketService.createCheckout(request);
